@@ -56,7 +56,7 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
               <h3 className="text-sm font-semibold text-gray-700">Audit Trigger Panel</h3>
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">
-              When clicked, the system bundles overall schedule grids, seating metrics, and teacher workloads to query the model.
+              When clicked, the system bundles overall schedule grids, seating metrics and teacher workloads to query the model.
             </p>
 
             <button

@@ -226,7 +226,7 @@ export default function DashboardView() {
                   </div>
                 )}
               </div>
-              <span className="text-[10px] text-gray-400 block mt-4 font-medium">Target workloads are mapped against 15 active lecture periods per faculty member per week.</span>
+              <span className="text-[10px] text-gray-400 block mt-4 font-medium">Target workloads are mapped against 15 active lecture periods per faculty member per week</span>
             </div>
 
           </div>
