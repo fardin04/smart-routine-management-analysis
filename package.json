@@ -1,7 +1,4 @@
 {
-  "devDependencies": {
-    "esbuild": "^0.28.1"
-  },
   "name": "smart-routine-management-analysis",
   "version": "1.0.0",
   "description": "",
@@ -20,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/fardin04/smart-routine-management-analysis/issues"
   },
-  "homepage": "https://github.com/fardin04/smart-routine-management-analysis#readme"
+  "homepage": "https://github.com/fardin04/smart-routine-management-analysis#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  },
+  "dependencies": {
+    "lucide-react": "^1.21.0"
+  }
 }
