@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { Routine, Room, Teacher, Course } from '../types';
-import { BarChart, BookOpen, Layers, ShieldCheck, CheckSquare, Sparkles, TrendingUp, AlertTriangle } from 'lucide-react';
+import { BarChart, BookOpen, Layers, ShieldCheck, Sparkles, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export default function ReportsTab() {
   const [loading, setLoading] = useState(false);
@@ -67,7 +67,10 @@ export default function ReportsTab() {
   return (
     <div className="space-y-6" id="reports-section">
       <div>
-        <h2 className="text-xl font-semibold text-gray-800">Analytical & Utilization Reports</h2>
+        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-amber-500 animate-pulse-slow shrink-0" />
+          Analytical & Utilization Reports
+        </h2>
         <p className="text-xs text-gray-500 mt-1">
           Review operational metrics, calculated lecturer hours, room utilization distributions, and syllabus reports.
         </p>
@@ -113,7 +116,7 @@ export default function ReportsTab() {
 
             <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-xs flex items-center gap-3">
               <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-md border border-emerald-100">
-                <CheckSquare className="w-5 h-5" />
+                <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
                 <span className="block text-[10px] text-gray-400 uppercase font-bold">Syllabus Completion</span>
@@ -157,7 +160,10 @@ export default function ReportsTab() {
                           />
                         </div>
                         {load.count > 10 && (
-                          <span className="text-[9px] text-red-600 font-semibold block">⚠️ High workload warning: lecturer approaches weekly overtime restrictions.</span>
+                          <span className="text-[9px] text-red-600 font-semibold flex items-center gap-1 mt-1">
+                            <AlertTriangle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                            High workload warning: lecturer approaches weekly overtime restrictions.
+                          </span>
                         )}
                       </div>
                     );
