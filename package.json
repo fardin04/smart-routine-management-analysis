@@ -22,6 +22,6 @@
     "esbuild": "^0.28.1"
   },
   "dependencies": {
-    "lucide-react": "^1.21.0"
+    "lucide-react": "^1.23.0"
   }
 }

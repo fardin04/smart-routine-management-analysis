@@ -11,6 +11,8 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [analysis, setAnalysis] = useState<AiResponse | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const handleRunAnalysis = async () => {
     setLoading(true);
@@ -26,6 +28,14 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
       setError(err.response?.data?.error || 'Failed to run Gemini analysis middleware.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCopy = () => {
+    if (analysis?.overallSummary) {
+      navigator.clipboard.writeText(analysis.overallSummary).catch(() => {});
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -51,12 +61,31 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
           
           {/* Analyze Trigger Card */}
           <div className="lg:col-span-1 bg-white p-5 rounded-lg border border-gray-200 shadow-xs h-fit space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-              <Cpu className="text-sky-600 w-4.5 h-4.5" />
-              <h3 className="text-sm font-semibold text-gray-700">Audit Trigger Panel</h3>
+            <div className="flex items-center justify-between pb-2 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <Cpu className="text-sky-600 w-4.5 h-4.5" />
+                <h3 className="text-sm font-semibold text-gray-700">Audit Trigger Panel</h3>
+              </div>
+              <button 
+                onClick={() => setShowHelp(!showHelp)}
+                className="text-gray-400 hover:text-gray-600 transition p-1 rounded"
+                title="Learn more about AI audits"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </button>
             </div>
+            {showHelp && (
+              <div className="p-3 bg-blue-50 border border-blue-100 rounded text-[11px] text-blue-800 leading-relaxed animate-fade-in">
+                <strong>What gets analyzed?</strong>
+                <ul className="list-disc list-inside mt-1 space-y-1">
+                  <li>Teacher contact-hours density</li>
+                  <li>Overlapping room allocations</li>
+                  <li>Inconsistencies in section assignments</li>
+                </ul>
+              </div>
+            )}
             <p className="text-xs text-gray-600 leading-relaxed">
-              When clicked, the system bundles overall schedule grids, seating metrics and teacher workloads to query the model.
+              When clicked, the system bundles overall schedule grids, seating metrics, and teacher workloads to query the model.
             </p>
 
             <button
@@ -94,9 +123,19 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
                 
                 {/* Executive Summary */}
                 <div className="bg-emerald-50/55 p-5 rounded-lg border border-emerald-200/60 shadow-xs">
-                  <div className="flex items-center gap-2 mb-2">
-                    <CheckCircle className="w-4.5 h-4.5 text-emerald-600" />
-                    <h3 className="text-sm font-bold text-emerald-950">Executive Auditor Summary</h3>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4.5 h-4.5 text-emerald-600" />
+                      <h3 className="text-sm font-bold text-emerald-950">Executive Auditor Summary</h3>
+                    </div>
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200/80 px-2 py-1 rounded transition-smooth"
+                      title="Copy Summary to Clipboard"
+                    >
+                      <Clipboard className="w-3.5 h-3.5" />
+                      {copied ? 'Copied!' : 'Copy'}
+                    </button>
                   </div>
                   <p className="text-xs text-emerald-900 leading-relaxed font-medium">
                     {analysis.overallSummary}

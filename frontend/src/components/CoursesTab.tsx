@@ -345,7 +345,10 @@ export default function CoursesTab() {
                           </select>
                         ) : (
                           course.teacher ? (
-                            <span className="font-medium text-gray-700">{course.teacher.name}</span>
+                            <span className="font-medium text-gray-700 inline-flex items-center gap-1">
+                              <UserCheck className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                              {course.teacher.name}
+                            </span>
                           ) : (
                             <span className="text-red-500 font-mono text-[11px] font-semibold">Teacher Not Assigned</span>
                           )
@@ -364,7 +367,10 @@ export default function CoursesTab() {
                           </select>
                         ) : (
                           course.batch ? (
-                            <span>Batch {course.batch.batchNumber} - {course.batch.section}</span>
+                            <span className="inline-flex items-center gap-1">
+                              <Layers className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                              Batch {course.batch.batchNumber} - {course.batch.section}
+                            </span>
                           ) : (
                             <span className="text-gray-400">Unknown Cohort</span>
                           )
