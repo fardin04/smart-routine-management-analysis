@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Teacher, Room, Batch, Course, Routine } from '../types';
-import { Users, LayoutGrid, Layers, GraduationCap, Calendar, CheckSquare, RefreshCw, BarChart, Sliders } from 'lucide-react';
+import type { Teacher, Room, Routine } from '../types';
+import { Users, LayoutGrid, Layers, GraduationCap, Calendar, RefreshCw, BarChart } from 'lucide-react';
 
 export default function DashboardView() {
   const [loading, setLoading] = useState(false);
@@ -86,7 +86,7 @@ export default function DashboardView() {
         <button
           onClick={fetchDashboardDetails}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded bg-white hover:bg-gray-50 text-xs text-gray-600 transition"
+          className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-300 rounded bg-white hover:bg-gray-50 text-xs text-gray-600 transition font-medium cursor-pointer disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           Sync Data Registers
@@ -226,7 +226,7 @@ export default function DashboardView() {
                   </div>
                 )}
               </div>
-              <span className="text-[10px] text-gray-400 block mt-4 font-medium">Target workloads are mapped against 15 active lecture periods per faculty member per week</span>
+              <span className="text-[10px] text-gray-400 block mt-4 font-medium">Target workloads are mapped against 15 active lecture periods per faculty member per week.</span>
             </div>
 
           </div>

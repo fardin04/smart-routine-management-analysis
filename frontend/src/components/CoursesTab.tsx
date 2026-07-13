@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Course, Teacher, Batch } from '../types';
+import type { Course, Teacher, Batch } from '../types';
 import { Search, Plus, Edit, Trash2, Check, X, ShieldAlert, BookOpen, UserCheck, Layers } from 'lucide-react';
 
 export default function CoursesTab() {
@@ -237,7 +237,7 @@ export default function CoursesTab() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#2C4A6F] text-white text-xs py-2.5 px-4 rounded hover:bg-[#1B324F] transition font-medium"
+              className="w-full flex items-center justify-center gap-2 bg-[#2C4A6F] text-white text-xs py-2.5 px-4 rounded hover:bg-[#1B324F] transition font-medium cursor-pointer disabled:opacity-50"
             >
               <Plus className="w-4 h-4" />
               Enroll Course
@@ -381,7 +381,7 @@ export default function CoursesTab() {
                           <div className="flex gap-2 justify-end">
                             <button
                               onClick={() => handleUpdate(course.id)}
-                              className="p-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded"
+                              className="p-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded cursor-pointer"
                               title="Save changes"
                             >
                               <Check className="w-3.5 h-3.5" />
@@ -390,7 +390,7 @@ export default function CoursesTab() {
                               onClick={() => {
                                 setIsEditing(null);
                               }}
-                              className="p-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded"
+                              className="p-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded cursor-pointer"
                               title="Cancel"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -409,14 +409,14 @@ export default function CoursesTab() {
                                   batchId: course.batchId.toString()
                                 });
                               }}
-                              className="p-1 text-[#2C4A6F] hover:bg-slate-100 rounded"
+                              className="p-1 text-[#2C4A6F] hover:bg-slate-100 rounded cursor-pointer"
                               title="Edit"
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDelete(course.id, `${course.courseCode}: ${course.courseName}`)}
-                              className="p-1 text-red-600 hover:bg-red-50 rounded"
+                              className="p-1 text-red-600 hover:bg-red-50 rounded cursor-pointer"
                               title="Delete"
                             >
                               <Trash2 className="w-3.5 h-3.5" />

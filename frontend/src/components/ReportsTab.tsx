@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Routine, Room, Teacher, Course } from '../types';
+import type { Routine, Room, Teacher, Course } from '../types';
 import { BarChart, BookOpen, Layers, ShieldCheck, Sparkles, TrendingUp, AlertTriangle } from 'lucide-react';
 
 export default function ReportsTab() {

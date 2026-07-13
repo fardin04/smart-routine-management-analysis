@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Routine, Teacher, Batch } from '../types';
-import { Search, Printer, SlidersHorizontal, Sliders, Calendar, Users, Eye, HelpCircle, FileDown, Check } from 'lucide-react';
+import type { Routine, Teacher, Batch } from '../types';
+import { Search, Printer, Sliders, Calendar, Users, Eye, HelpCircle, FileDown, Check } from 'lucide-react';
 
 export default function RoutineViewerTab() {
   const [routines, setRoutines] = useState<Routine[]>([]);
@@ -99,16 +99,38 @@ export default function RoutineViewerTab() {
     <div className="space-y-6" id="routine-viewer-tab">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 print:hidden">
         <div>
-          <h2 className="text-xl font-semibold text-gray-800">Finalized Academic Routines</h2>
+          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-1.5">
+            Finalized Academic Routines
+            <span title="Use the filter panel to isolate routines for single batches, sections, or lecturers.">
+              <HelpCircle className="w-4 h-4 text-gray-400 shrink-0 cursor-help" />
+            </span>
+          </h2>
           <p className="text-xs text-gray-500 mt-1">
             Display, filter, check classes, and download scheduled sessions.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => {
+              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(routines, null, 2));
+              const downloadAnchor = document.createElement('a');
+              downloadAnchor.setAttribute("href", dataStr);
+              downloadAnchor.setAttribute("download", "university_schedule.json");
+              document.body.appendChild(downloadAnchor);
+              downloadAnchor.click();
+              downloadAnchor.remove();
+            }}
+            className="flex items-center gap-1.5 bg-white border border-gray-300 text-gray-700 text-xs font-semibold py-1.5 px-3 rounded hover:bg-gray-50 transition cursor-pointer"
+            title="Download full schedule raw dataset as JSON"
+          >
+            <FileDown className="w-3.5 h-3.5" />
+            Export Raw JSON
+          </button>
+
           <button
             onClick={() => setIsPrintFriendly(!isPrintFriendly)}
-            className={`px-3 py-1.5 text-xs font-semibold rounded border transition flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded border transition flex items-center gap-1.5 cursor-pointer ${
               isPrintFriendly 
                 ? 'bg-sky-50 text-sky-700 border-sky-200' 
                 : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
@@ -120,7 +142,7 @@ export default function RoutineViewerTab() {
 
           <button
             onClick={handlePrint}
-            className="flex items-center gap-1.5 bg-[#2C4A6F] text-white text-xs font-semibold py-1.5 px-3 rounded hover:bg-[#1B324F] transition"
+            className="flex items-center gap-1.5 bg-[#2C4A6F] text-white text-xs font-semibold py-1.5 px-3 rounded hover:bg-[#1B324F] transition cursor-pointer"
           >
             <Printer className="w-3.5 h-3.5" />
             Print Schedules & Export PDF
@@ -128,8 +150,18 @@ export default function RoutineViewerTab() {
         </div>
       </div>
 
-      {/* Constraints Alerts if routine has nothing generated */}
-      {routines.length === 0 && (
+      {/* Loading indicator */}
+      {loading ? (
+        <div className="py-12 text-center text-xs text-gray-400 print:hidden flex flex-col items-center gap-2">
+          <Calendar className="w-6 h-6 animate-spin text-sky-600" />
+          <span>Synchronizing finalized schedules...</span>
+        </div>
+      ) : error ? (
+        <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded text-red-800 text-xs flex gap-2 print:hidden">
+          <HelpCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      ) : routines.length === 0 && (
         <div className="p-8 text-center bg-white border border-gray-200 rounded-lg shadow-xs print:hidden">
           <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
           <h3 className="text-sm font-semibold text-gray-700 mb-1">No Academic Schedule Created</h3>
@@ -143,13 +175,16 @@ export default function RoutineViewerTab() {
         <div className="space-y-6">
           {/* Filters Selection Card */}
           <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-xs flex flex-wrap gap-4 items-end print:hidden">
-            <div className="flex items-center gap-1 text-xs font-bold text-gray-600 w-full mb-1">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-sky-600" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-gray-600 w-full mb-1">
+              <Search className="w-3.5 h-3.5 text-sky-600" />
               <span>Routine Filters Control</span>
             </div>
 
             <div>
-              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Filter by Cohort</label>
+              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1 flex items-center gap-1">
+                <Users className="w-3 h-3 text-sky-600 shrink-0" />
+                Filter by Cohort
+              </label>
               <select
                 value={selectedBatchId}
                 onChange={e => setSelectedBatchId(e.target.value)}
@@ -163,7 +198,10 @@ export default function RoutineViewerTab() {
             </div>
 
             <div>
-              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Filter by Teacher</label>
+              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1 flex items-center gap-1">
+                <Sliders className="w-3 h-3 text-sky-600 shrink-0" />
+                Filter by Teacher
+              </label>
               <select
                 value={selectedTeacherId}
                 onChange={e => setSelectedTeacherId(e.target.value)}
@@ -177,7 +215,10 @@ export default function RoutineViewerTab() {
             </div>
 
             <div>
-              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Filter by Day</label>
+              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1 flex items-center gap-1">
+                <Calendar className="w-3 h-3 text-sky-600 shrink-0" />
+                Filter by Day
+              </label>
               <select
                 value={selectedDay}
                 onChange={e => setSelectedDay(e.target.value)}
@@ -193,7 +234,7 @@ export default function RoutineViewerTab() {
             {(selectedBatchId || selectedTeacherId || selectedDay) && (
               <button
                 onClick={clearFilters}
-                className="text-xs font-semibold py-2 px-3 border border-gray-200 bg-gray-50 hover:bg-gray-100 rounded text-gray-600 transition"
+                className="text-xs font-semibold py-2 px-3 border border-gray-200 bg-gray-50 hover:bg-gray-100 rounded text-gray-600 transition cursor-pointer"
               >
                 Reset Filters
               </button>
@@ -338,11 +379,12 @@ export default function RoutineViewerTab() {
                                           <span className="px-1.5 py-0.5 font-mono text-[9px] font-bold bg-white text-gray-700 border border-gray-200 rounded">
                                             {result.session.course?.courseCode}
                                           </span>
-                                          <span className={`text-[8px] font-bold px-1.5 rounded ${
+                                          <span className={`text-[8px] font-bold px-1.5 rounded flex items-center gap-0.5 ${
                                             result.session.course?.courseType === 'Lab' 
                                               ? 'bg-amber-100 text-amber-800' 
                                               : 'bg-emerald-100 text-emerald-800'
                                           }`}>
+                                            <Check className="w-2.5 h-2.5 text-current shrink-0" />
                                             {result.session.course?.courseType === 'Lab' ? 'LAB' : 'LEC'}
                                           </span>
                                         </div>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import api from '../services/api';
-import { AiResponse } from '../types';
+import { type AiResponse } from '../types';
 import { Sparkles, Brain, Cpu, MessageSquare, AlertCircle, CheckCircle, RefreshCw, Layers, Clipboard, HelpCircle } from 'lucide-react';
 
 interface AiAnalysisTabProps {
@@ -68,7 +68,7 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
               </div>
               <button 
                 onClick={() => setShowHelp(!showHelp)}
-                className="text-gray-400 hover:text-gray-600 transition p-1 rounded"
+                className="text-gray-400 hover:text-gray-600 transition p-1 rounded courser-pointer"
                 title="Learn more about AI audits"
               >
                 <HelpCircle className="w-4 h-4" />
@@ -91,7 +91,7 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
             <button
               onClick={handleRunAnalysis}
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#2C4A6F] text-white text-xs font-semibold py-3 px-4 rounded hover:bg-[#1B324F] transition disabled:opacity-50 shadow-xs"
+              className="w-full flex items-center justify-center gap-2 bg-[#2C4A6F] text-white text-xs font-semibold py-3 px-4 rounded hover:bg-[#1B324F] transition disabled:opacity-50 shadow-xs cursor-pointer"
             >
               {loading ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -130,7 +130,7 @@ export default function AiAnalysisTab({ hasRoutines }: AiAnalysisTabProps) {
                     </div>
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200/80 px-2 py-1 rounded transition-smooth"
+                      className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-700 hover:text-emerald-900 bg-emerald-100 hover:bg-emerald-200/80 px-2 py-1 rounded transition-smooth cursor-pointer"
                       title="Copy Summary to Clipboard"
                     >
                       <Clipboard className="w-3.5 h-3.5" />
