@@ -122,10 +122,8 @@ export default function App() {
   };
 
   const handleLogOut = () => {
-    if (window.confirm('Do you want to sign out from the administrative terminal?')) {
-      localStorage.removeItem('university_academic_jwt_token');
-      setIsAuthenticated(false);
-    }
+    localStorage.removeItem('university_academic_jwt_token');
+    setIsAuthenticated(false);
   };
 
   if (checkingAuth) {
@@ -161,24 +159,30 @@ export default function App() {
             )}
 
             <div>
-              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Administrative Username</label>
+              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1 flex items-center gap-1">
+                <UserCheck className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                Administrative Username
+              </label>
               <input
                 type="text"
                 value={loginUsername}
                 onChange={e => setLoginUsername(e.target.value)}
-                className="w-full text-xs p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50"
+                className="w-full text-xs p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50 cursor-pointer"
                 placeholder="Enter admin user"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Passkey Code</label>
+              <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1 flex items-center gap-1">
+                <Lock className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                Passkey Code
+              </label>
               <input
                 type="password"
                 value={loginPassword}
                 onChange={e => setLoginPassword(e.target.value)}
-                className="w-full text-xs p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50"
+                className="w-full text-xs p-2.5 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50 cursor-pointer"
                 placeholder="Enter password"
                 required
               />
@@ -229,7 +233,7 @@ export default function App() {
             
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'dashboard'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -241,7 +245,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('teachers')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'teachers'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -253,7 +257,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('rooms')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'rooms'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -265,7 +269,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('batches')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'batches'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -277,7 +281,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('courses')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'courses'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -289,7 +293,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('generator')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'generator'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -301,7 +305,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('viewer')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'viewer'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -313,7 +317,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('ai')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'ai'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -325,7 +329,7 @@ export default function App() {
 
             <button
               onClick={() => setActiveTab('reports')}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold rounded transition cursor-pointer ${
                 activeTab === 'reports'
                   ? 'bg-sky-50 text-sky-700 border border-sky-100'
                   : 'text-gray-600 hover:bg-gray-50'
@@ -352,7 +356,7 @@ export default function App() {
 
           <button
             onClick={handleLogOut}
-            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded transition mt-1"
+            className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded transition mt-1 cursor-pointer"
           >
             <LogOut className="w-4 h-4 shrink-0" />
             Disconnect Admin

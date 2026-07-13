@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Teacher } from '../types';
+import { type Teacher } from '../types';
 import { Search, Plus, Edit, Trash2, Check, X, ShieldAlert, BookOpen } from 'lucide-react';
 
 export default function TeachersTab() {
@@ -161,7 +161,7 @@ export default function TeachersTab() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-[#2C4A6F] text-white text-xs py-2.5 px-4 rounded hover:bg-[#1B324F] transition font-medium"
+              className="w-full flex items-center justify-center gap-2 bg-[#2C4A6F] text-white text-xs py-2.5 px-4 rounded hover:bg-[#1B324F] transition font-medium disabled:opacity-50 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               Register Profile
@@ -226,7 +226,7 @@ export default function TeachersTab() {
                           <div className="flex gap-2 justify-end">
                             <button
                               onClick={() => handleUpdate(teacher.id)}
-                              className="p-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded"
+                              className="p-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded cursor-pointer"
                               title="Save changes"
                             >
                               <Check className="w-3.5 h-3.5" />
@@ -236,7 +236,7 @@ export default function TeachersTab() {
                                 setIsEditing(null);
                                 setEditName('');
                               }}
-                              className="p-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded"
+                              className="p-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded cursor-pointer"
                               title="Cancel"
                             >
                               <X className="w-3.5 h-3.5" />
@@ -249,14 +249,14 @@ export default function TeachersTab() {
                                 setIsEditing(teacher.id);
                                 setEditName(teacher.name);
                               }}
-                              className="p-1 text-[#2C4A6F] hover:bg-slate-100 rounded"
+                              className="p-1 text-[#2C4A6F] hover:bg-slate-100 rounded cursor-pointer"
                               title="Edit"
                             >
                               <Edit className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDelete(teacher.id, teacher.name)}
-                              className="p-1 text-red-600 hover:bg-red-50 rounded"
+                              className="p-1 text-red-600 hover:bg-red-50 rounded cursor-pointer "
                               title="Delete"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
