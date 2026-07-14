@@ -1,5 +1,3 @@
-import path from 'path';
-import express from 'express';
 import app from './app';
 import { sequelize } from './models/Index';
 import bcrypt from 'bcryptjs';
