@@ -22,6 +22,7 @@ export class AuthController {
 
       const admin = await Admin.findOne({ where: { username } });
 
+
       if (!admin) {
         res.status(401).json({ error: 'Invalid credentials' });
         return;

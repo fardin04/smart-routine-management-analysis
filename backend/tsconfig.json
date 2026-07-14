@@ -14,5 +14,7 @@
     /* Output */
     "outDir": "./dist"           
   },
-  "include": ["src/**/*", "server.ts"] 
+  "include": [
+  "**/*.ts"
+]
 }

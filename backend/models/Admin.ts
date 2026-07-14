@@ -2,9 +2,9 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/db';
 
 export class Admin extends Model {
-  public id!: number;
-  public username!: string;
-  public password!: string;
+  declare id: number;
+  declare username: string;
+  declare password: string;
 }
 
 Admin.init(

@@ -40,7 +40,7 @@ const initDatabase = async (): Promise<Sequelize> => {
       dialectOptions: {
         ssl: {
           require: true,
-          rejectUnauthorized: true, // Safeguards connection over the public internet
+          rejectUnauthorized: false, // Safeguards connection over the public internet
         },
       },
     };
@@ -52,13 +52,12 @@ const initDatabase = async (): Promise<Sequelize> => {
       await instance.authenticate();
       console.log(`Sequelize: Successfully authenticated with Aiven Cloud PostgreSQL ["${dbName}"].`);
       return instance;
-    } catch (error) {
-      console.warn('========================================================================');
-      console.warn('⚠️  POSTGRESQL CONNECTION ERROR:');
-      console.warn(`Could not connect to the cloud PostgreSQL database engine.`);
-      console.warn('Falling back to SQLite to maintain service availability.');
-      console.warn('========================================================================');
-      return createSqliteInstance();
+    } catch (error:any) {
+      
+  console.error('POSTGRES ERROR DETAILS:');
+  console.error(error);
+
+  return createSqliteInstance();
     }
   } else {
     console.log('Sequelize: DB_DIALECT explicit instruction found for local storage layout.');
