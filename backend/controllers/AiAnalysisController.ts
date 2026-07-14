@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { GoogleGenAI, Type } from '@google/genai';
-import { Routine, Course, Teacher, Room, Batch } from '../models';
+import { Routine, Course, Teacher, Room, Batch } from '../models/Index';
 
 export class AiAnalysisController {
 

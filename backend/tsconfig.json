@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    /* Base Options */
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler", 
+    "esModuleInterop": true,     
+    "forceConsistentCasingInFileNames": true,
+    
+    /* Strictness */
+    "strict": true,
+    "skipLibCheck": true,        
+    
+    /* Output */
+    "outDir": "./dist"           
+  },
+  "include": ["src/**/*", "server.ts"] 
+}

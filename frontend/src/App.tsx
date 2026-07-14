@@ -43,8 +43,8 @@ type TabId =
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [loginUsername, setLoginUsername] = useState('admin');
-  const [loginPassword, setLoginPassword] = useState('admin123');
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState<string | null>(null);
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -200,9 +200,6 @@ export default function App() {
 
           {/* Seed credentials guide box as requested */}
           <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-            <span className="inline-block bg-sky-50/50 border border-sky-100 text-[#1E3F66] text-[11px] py-2 px-3 rounded leading-normal font-semibold">
-              Evaluation Keys: admin / admin123
-            </span>
           </div>
 
         </div>
