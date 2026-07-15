@@ -1,13 +1,16 @@
-import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/db';
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 
-export class Course extends Model {
-  public id!: number;
-  public courseName!: string;
-  public courseCode!: string;
-  public courseType!: 'Theory' | 'Lab';
-  public teacherId!: string | null;
-  public batchId!: number;
+export class Course extends Model<
+  InferAttributes<Course>,
+  InferCreationAttributes<Course>
+> {
+  declare id: CreationOptional<number>;
+  declare courseName: string;
+  declare courseCode: string;
+  declare courseType: 'Theory' | 'Lab';
+  declare teacherId: string | null;
+  declare batchId: number;
 }
 
 Course.init(

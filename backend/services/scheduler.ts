@@ -1,10 +1,10 @@
-import { Teacher, Room, Batch, Course, Routine } from '../models/Index';
+import { Teacher, Room, Batch, Course, Routine } from "../models/Index";
 
 export interface ScheduleItem {
   id: number;
   courseName: string;
   courseCode: string;
-  courseType: 'Theory' | 'Lab';
+  courseType: "Theory" | "Lab";
   teacherId: string;
   batchId: number;
   studentCount: number;
@@ -16,7 +16,7 @@ export interface ScheduledSlot {
   teacherId: string;
   roomNumber: string;
   batchId: number;
-  day: 'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday';
+  day: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday";
   slot: number;
 }
 
@@ -26,20 +26,15 @@ export interface ConflictReport {
   reason: string;
 }
 
-const DAYS: Array<'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday'> = [
-  'Sunday',
-  'Monday',
-  'Tuesday',
-  'Wednesday',
-  'Thursday'
-];
+const DAYS: Array<"Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday"> =
+  ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"];
 
 export class RoutineScheduler {
   // Analytical trackers to speed up conflict-free checks
   private teacherBusy: Record<string, Record<string, boolean[]>> = {};
   private roomBusy: Record<string, Record<string, boolean[]>> = {};
   private batchBusy: Record<number, Record<string, boolean[]>> = {};
-  
+
   // To avoid scheduling two sessions of the same Theory course on the same day
   private scheduledDaysForCourse: Record<number, Record<string, boolean>> = {};
 
@@ -59,9 +54,9 @@ export class RoutineScheduler {
     const batchesList = await Batch.findAll();
     const coursesList = await Course.findAll({
       include: [
-        { model: Teacher, as: 'teacher' },
-        { model: Batch, as: 'batch' }
-      ]
+        { model: Teacher, as: "teacher" },
+        { model: Batch, as: "batch" },
+      ],
     });
 
     // Initialize tracking tables
@@ -78,9 +73,9 @@ export class RoutineScheduler {
             {
               failedCourse: course.courseName,
               courseCode: course.courseCode,
-              reason: 'Teacher not assigned to the course.'
-            }
-          ]
+              reason: "Teacher not assigned to the course.",
+            },
+          ],
         };
       }
 
@@ -93,9 +88,9 @@ export class RoutineScheduler {
             {
               failedCourse: course.courseName,
               courseCode: course.courseCode,
-              reason: 'Associated class batch not found.'
-            }
-          ]
+              reason: "Associated class batch not found.",
+            },
+          ],
         };
       }
 
@@ -106,56 +101,59 @@ export class RoutineScheduler {
         if (course.courseType === 'Lab' && room.type !== 'Laboratory') {
           return false;
         }
-        return room.capacity >= studentCount;
+
+        return room.getDataValue("capacity") >= studentCount;
       });
 
       if (suitableRooms.length === 0) {
-        const errorReason = course.courseType === 'Lab'
-          ? `No Laboratory room with capacity of ${studentCount} seats exists.`
-          : `No Classroom with capacity of ${studentCount} seats exists.`;
+        const errorReason =
+          course.courseType === "Lab"
+            ? `No Laboratory room with capacity of ${studentCount} seats exists.`
+            : `No Classroom with capacity of ${studentCount} seats exists.`;
         return {
           success: false,
           conflicts: [
             {
               failedCourse: course.courseName,
               courseCode: course.courseCode,
-              reason: errorReason
-            }
-          ]
+              reason: errorReason,
+            },
+          ],
         };
       }
 
-      if (course.courseType === 'Theory') {
+      if (course.courseType === "Theory") {
         itemsToSchedule.push({
           id: course.id,
           courseName: course.courseName,
           courseCode: course.courseCode,
-          courseType: 'Theory',
+          courseType: "Theory",
           teacherId: course.teacherId,
           batchId: course.batchId,
           studentCount,
-          sessionIndex: 1
+          sessionIndex: 1,
         });
         itemsToSchedule.push({
           id: course.id,
           courseName: course.courseName,
           courseCode: course.courseCode,
-          courseType: 'Theory',
+          courseType: "Theory",
           teacherId: course.teacherId,
           batchId: course.batchId,
           studentCount,
-          sessionIndex: 2
+          sessionIndex: 2,
         });
       } else {
+        // Lab course = one lab session
         itemsToSchedule.push({
           id: course.id,
           courseName: course.courseName,
           courseCode: course.courseCode,
-          courseType: 'Lab',
+          courseType: "Lab",
           teacherId: course.teacherId,
           batchId: course.batchId,
           studentCount,
-          sessionIndex: 1
+          sessionIndex: 1,
         });
       }
     }
@@ -163,8 +161,8 @@ export class RoutineScheduler {
     // Sort items to schedule: place Labs first.
     // Labs are harder to schedule (taking 2 slots and lab-rooms).
     itemsToSchedule.sort((a, b) => {
-      if (a.courseType === 'Lab' && b.courseType !== 'Lab') return -1;
-      if (a.courseType !== 'Lab' && b.courseType === 'Lab') return 1;
+      if (a.courseType === "Lab" && b.courseType !== "Lab") return -1;
+      if (a.courseType !== "Lab" && b.courseType === "Lab") return 1;
       return b.studentCount - a.studentCount; // Schedule larger cohorts earlier
     });
 
@@ -187,65 +185,126 @@ export class RoutineScheduler {
       const reasons: string[] = [];
 
       // Find compatible rooms
-      const candidateRooms = roomsList.filter(room => {
+      const candidateRooms = roomsList.filter((room) => {
         // Lab courses MUST use Laboratory rooms only
-        if (item.courseType === 'Lab') {
-          if (room.type !== 'Laboratory') {
-            reasons.push(`Room ${room.roomNumber} is a regular Classroom, cannot schedule Lab`);
+        if (item.courseType === "Lab") {
+          if (room.getDataValue("type") !== "Laboratory") {
+            reasons.push(
+              `Room ${room.getDataValue("roomNumber")} is a regular Classroom, cannot schedule Lab`,
+            );
             return false;
           }
         }
         // Room capacity must be greater than or equal to student count
-        if (room.capacity < item.studentCount) {
-          reasons.push(`Room ${room.roomNumber} capacity (${room.capacity}) < student count (${item.studentCount})`);
+        if (room.getDataValue("capacity") < item.studentCount) {
+          reasons.push(
+            `Room ${room.getDataValue("roomNumber")} capacity (${room.getDataValue("capacity")}) < student count (${item.studentCount})`,
+          );
           return false;
         }
         return true;
+      }).sort((a, b) => {
+        const capacityDiff = a.getDataValue("capacity") - b.getDataValue("capacity");
+        if (capacityDiff !== 0) return capacityDiff;
+        return String(a.getDataValue("roomNumber")).localeCompare(
+          String(b.getDataValue("roomNumber")),
+        );
       });
 
       if (candidateRooms.length === 0) {
         conflictsMap[item.id] = conflictsMap[item.id] || [];
-        conflictsMap[item.id].push('No suitable room found (size or room type mismatch).');
+        conflictsMap[item.id].push(
+          "No suitable room found (size or room type mismatch).",
+        );
         return false;
       }
 
       // Backtracking choice exploration
-      for (const day of DAYS) {
+      const candidateDays = [...DAYS].sort((a, b) => {
+        const dayDiff = this.getDayLoad(a) - this.getDayLoad(b);
+        if (dayDiff !== 0) return dayDiff;
+        return DAYS.indexOf(a) - DAYS.indexOf(b);
+      });
+
+      for (const day of candidateDays) {
         // For Theory: Avoid scheduling same course on the same day or adjacent days
-        const isTheory = item.courseType === 'Theory';
+        const isTheory = item.courseType === "Theory";
         if (isTheory) {
-          const daysScheduledBefore = Object.keys(this.scheduledDaysForCourse[item.id] || {}).filter(
-            d => this.scheduledDaysForCourse[item.id][d]
-          );
+          const daysScheduledBefore = Object.keys(
+            this.scheduledDaysForCourse[item.id] || {},
+          ).filter((d) => this.scheduledDaysForCourse[item.id][d]);
           if (daysScheduledBefore.includes(day)) {
             continue; // Skip same day
           }
-          if (daysScheduledBefore.some(prevDay => this.isAdjacentDay(prevDay, day))) {
+          if (
+            daysScheduledBefore.some((prevDay) =>
+              this.isAdjacentDay(prevDay, day),
+            )
+          ) {
             continue; // Skip adjacent days
           }
         }
 
         // Loop slots
-        const maxSlot = item.courseType === 'Lab' ? 7 : 8; // Labs need 2 consecutive slots, so start slot <= 7
+        const isLab = item.courseType === "Lab";
+        const maxSlot = isLab ? 7 : 8; // Lab sessions need slot and slot + 1
+        const slotLength = isLab ? 2 : 1;
+        const candidateSlots = Array.from({ length: maxSlot }, (_, index) => index + 1).sort(
+          (a, b) => {
+            const blockDiff = this.getBlockLoad(day, a, slotLength) - this.getBlockLoad(day, b, slotLength);
+            if (blockDiff !== 0) return blockDiff;
+            return a - b;
+          },
+        );
 
-        for (let slot = 1; slot <= maxSlot; slot++) {
+        for (const slot of candidateSlots) {
           for (const room of candidateRooms) {
-            const isAvailable = this.checkAvailability(item, room.roomNumber, day, slot);
-            
+            const roomNumber = room.getDataValue("roomNumber");
+            const isAvailable = isLab
+              ? this.checkContiguousAvailability(item, roomNumber, day, slot, 2)
+              : this.checkContiguousAvailability(item, roomNumber, day, slot, 1);
+
             if (isAvailable) {
               // 1. Reserve resource
-              this.toggleReservation(item, room.roomNumber, day, slot, true);
-              
-              // Record assigned slot
-              const scheduled: ScheduledSlot = {
-                courseId: item.id,
-                teacherId: item.teacherId,
-                roomNumber: room.roomNumber,
-                batchId: item.batchId,
+              this.toggleReservation(
+                item,
+                roomNumber,
                 day,
-                slot
-              };
-              finalRoutines.push(scheduled);
+                slot,
+                true,
+              );
+
+              // Record assigned slot
+              if (!isLab) {
+                finalRoutines.push({
+                  courseId: item.id,
+                  teacherId: item.teacherId,
+                  roomNumber,
+                  batchId: item.batchId,
+                  day,
+                  slot,
+                });
+              } else {
+                // save BOTH slots for lab
+
+                finalRoutines.push({
+                  courseId: item.id,
+                  teacherId: item.teacherId,
+                  roomNumber,
+                  batchId: item.batchId,
+                  day,
+                  slot,
+                });
+
+                finalRoutines.push({
+                  courseId: item.id,
+                  teacherId: item.teacherId,
+                  roomNumber,
+                  batchId: item.batchId,
+                  day,
+                  slot: slot + 1,
+                });
+              }
 
               // 2. Recurse next item
               if (solve(itemIdx + 1)) {
@@ -253,26 +312,75 @@ export class RoutineScheduler {
               }
 
               // 3. Unreserve (backtrack)
-              finalRoutines.pop();
-              this.toggleReservation(item, room.roomNumber, day, slot, false);
+              if (!isLab) {
+                finalRoutines.pop();
+              } else {
+                finalRoutines.pop();
+                finalRoutines.pop();
+              }
+              this.toggleReservation(
+                item,
+                roomNumber,
+                day,
+                slot,
+                false,
+              );
             } else {
               // Collect specific reasons for conflict reporting
-              const isTeacherBusy = this.isTeacherBusyAt(item.teacherId, day, slot);
-              const isRoomBusy = this.isRoomBusyAt(room.roomNumber, day, slot);
+              const isTeacherBusy = this.isTeacherBusyAt(
+                item.teacherId,
+                day,
+                slot,
+              );
+              const isRoomBusy = this.isRoomBusyAt(
+                roomNumber,
+                day,
+                slot,
+              );
               const isBatchBusy = this.isBatchBusyAt(item.batchId, day, slot);
 
-              if (item.courseType === 'Lab') {
-                const isTeacherBusy2 = this.isTeacherBusyAt(item.teacherId, day, slot + 1);
-                const isRoomBusy2 = this.isRoomBusyAt(room.roomNumber, day, slot + 1);
-                const isBatchBusy2 = this.isBatchBusyAt(item.batchId, day, slot + 1);
-                
-                if (isTeacherBusy || isTeacherBusy2) reasons.push(`Teacher ${item.teacherId} unavailable in slot ${slot}-${slot+1}`);
-                if (isRoomBusy || isRoomBusy2) reasons.push(`Room ${room.roomNumber} unavailable in slot ${slot}-${slot+1}`);
-                if (isBatchBusy || isBatchBusy2) reasons.push(`Batch ${item.batchId} unavailable in slot ${slot}-${slot+1}`);
+              if (isLab) {
+                const isTeacherBusy2 = this.isTeacherBusyAt(
+                  item.teacherId,
+                  day,
+                  slot + 1,
+                );
+                const isRoomBusy2 = this.isRoomBusyAt(
+                  roomNumber,
+                  day,
+                  slot + 1,
+                );
+                const isBatchBusy2 = this.isBatchBusyAt(
+                  item.batchId,
+                  day,
+                  slot + 1,
+                );
+
+                if (isTeacherBusy || isTeacherBusy2)
+                  reasons.push(
+                    `Teacher ${item.teacherId} unavailable in slot ${slot}-${slot + 1}`,
+                  );
+                if (isRoomBusy || isRoomBusy2)
+                  reasons.push(
+                    `Room ${roomNumber} unavailable in slot ${slot}-${slot + 1}`,
+                  );
+                if (isBatchBusy || isBatchBusy2)
+                  reasons.push(
+                    `Batch ${item.batchId} unavailable in slot ${slot}-${slot + 1}`,
+                  );
               } else {
-                if (isTeacherBusy) reasons.push(`Teacher ${item.teacherId} unavailable in slot ${slot}`);
-                if (isRoomBusy) reasons.push(`Room ${room.roomNumber} unavailable in slot ${slot}`);
-                if (isBatchBusy) reasons.push(`Batch ${item.batchId} unavailable in slot ${slot}`);
+                if (isTeacherBusy)
+                  reasons.push(
+                    `Teacher ${item.teacherId} unavailable in slot ${slot}`,
+                  );
+                if (isRoomBusy)
+                  reasons.push(
+                    `Room ${roomNumber} unavailable in slot ${slot}`,
+                  );
+                if (isBatchBusy)
+                  reasons.push(
+                    `Batch ${item.batchId} unavailable in slot ${slot}`,
+                  );
               }
             }
           }
@@ -289,33 +397,46 @@ export class RoutineScheduler {
     if (isSolved) {
       return {
         success: true,
-        routines: finalRoutines
+        routines: finalRoutines,
       };
     } else {
       // Find the courses which failed to schedule and build conflict records
       const conflicts: ConflictReport[] = [];
       const failedCourseIds = Object.keys(conflictsMap).map(Number);
-      
+
       for (const cid of failedCourseIds) {
-        const matchingCourse = coursesList.find(c => c.id === cid);
+        const matchingCourse = coursesList.find((c) => c.id === cid);
         if (matchingCourse) {
           const reasonsSample = conflictsMap[cid];
-          let normalizedReason = 'No available slot matching constraints.';
-          
-          if (reasonsSample.some(r => r.includes('Room') && r.includes('capacity'))) {
-            normalizedReason = 'No suitable room found (insufficient capacity).';
-          } else if (reasonsSample.some(r => r.includes('Room') && r.includes('unavail'))) {
-            normalizedReason = 'No available slot due to room occupancy.';
-          } else if (reasonsSample.some(r => r.includes('Teacher'))) {
-            normalizedReason = 'Teacher unavailable during open slots.';
-          } else if (reasonsSample.some(r => r.includes('Classroom, cannot schedule Lab'))) {
-            normalizedReason = 'No suitable laboratory room available.';
+          let normalizedReason = "No available slot matching constraints.";
+
+          if (
+            reasonsSample.some(
+              (r) => r.includes("Room") && r.includes("capacity"),
+            )
+          ) {
+            normalizedReason =
+              "No suitable room found (insufficient capacity).";
+          } else if (
+            reasonsSample.some(
+              (r) => r.includes("Room") && r.includes("unavail"),
+            )
+          ) {
+            normalizedReason = "No available slot due to room occupancy.";
+          } else if (reasonsSample.some((r) => r.includes("Teacher"))) {
+            normalizedReason = "Teacher unavailable during open slots.";
+          } else if (
+            reasonsSample.some((r) =>
+              r.includes("Classroom, cannot schedule Lab"),
+            )
+          ) {
+            normalizedReason = "No suitable laboratory room available.";
           }
 
           conflicts.push({
             failedCourse: matchingCourse.courseName,
             courseCode: matchingCourse.courseCode,
-            reason: normalizedReason
+            reason: normalizedReason,
           });
         }
       }
@@ -323,20 +444,25 @@ export class RoutineScheduler {
       // Guaranteed to return at least one generic failure error if maps are empty
       if (conflicts.length === 0) {
         conflicts.push({
-          failedCourse: 'Full Term Generation',
-          courseCode: 'ALL',
-          reason: 'Backtracking logic resolved too many constraints simultaneously (Highly saturated schedule).'
+          failedCourse: "Full Term Generation",
+          courseCode: "ALL",
+          reason:
+            "Backtracking logic resolved too many constraints simultaneously (Highly saturated schedule).",
         });
       }
 
       return {
         success: false,
-        conflicts
+        conflicts,
       };
     }
   }
 
-  private initializeBusyTrackers(teachers: Teacher[], rooms: Room[], batches: Batch[]): void {
+  private initializeBusyTrackers(
+    teachers: Teacher[],
+    rooms: Room[],
+    batches: Batch[],
+  ): void {
     this.teacherBusy = {};
     this.roomBusy = {};
     this.batchBusy = {};
@@ -350,9 +476,11 @@ export class RoutineScheduler {
     }
 
     for (const r of rooms) {
-      this.roomBusy[r.roomNumber] = {};
+      this.roomBusy[r.getDataValue("roomNumber")] = {};
       for (const d of DAYS) {
-        this.roomBusy[r.roomNumber][d] = new Array(9).fill(false);
+        this.roomBusy[r.getDataValue("roomNumber")][d] = new Array(9).fill(
+          false,
+        );
       }
     }
 
@@ -376,6 +504,36 @@ export class RoutineScheduler {
     return this.batchBusy[bid]?.[day]?.[slot] || false;
   }
 
+  private getDayLoad(day: string): number {
+    let load = 0;
+
+    for (const roomNumber of Object.keys(this.roomBusy)) {
+      const slots = this.roomBusy[roomNumber]?.[day];
+      if (!slots) continue;
+
+      for (let slot = 1; slot <= 8; slot++) {
+        if (slots[slot]) load++;
+      }
+    }
+
+    return load;
+  }
+
+  private getBlockLoad(day: string, startSlot: number, length: number): number {
+    let load = 0;
+    const endSlot = Math.min(8, startSlot + length - 1);
+
+    for (let slot = startSlot; slot <= endSlot; slot++) {
+      for (const roomNumber of Object.keys(this.roomBusy)) {
+        if (this.roomBusy[roomNumber]?.[day]?.[slot]) {
+          load++;
+        }
+      }
+    }
+
+    return load;
+  }
+
   /**
    * Helper to check if two days are adjacent in the academic schedule
    */
@@ -387,36 +545,45 @@ export class RoutineScheduler {
   }
 
   /**
-   * Safe constraint verification
+   * Safe constraint verification for a contiguous block of slots.
+   * length = 1 for theory, 2 for lab.
    */
-  private checkAvailability(item: ScheduleItem, roomNumber: string, day: string, slot: number): boolean {
-    if (item.courseType === 'Theory') {
-      // Single slot reservation check
+  private checkContiguousAvailability(
+    item: ScheduleItem,
+    roomNumber: string,
+    day: string,
+    startSlot: number,
+    length: number,
+  ): boolean {
+    const endSlot = startSlot + length - 1;
+    if (endSlot > 8) return false;
+
+    for (let slot = startSlot; slot <= endSlot; slot++) {
       if (this.isRoomBusyAt(roomNumber, day, slot)) return false;
       if (this.isTeacherBusyAt(item.teacherId, day, slot)) return false;
       if (this.isBatchBusyAt(item.batchId, day, slot)) return false;
-      return true;
-    } else {
-      // Lab needs slot AND slot+1 reservation checks
-      const s1 = slot;
-      const s2 = slot + 1;
-      if (s2 > 8) return false;
-
-      if (this.isRoomBusyAt(roomNumber, day, s1) || this.isRoomBusyAt(roomNumber, day, s2)) return false;
-      if (this.isTeacherBusyAt(item.teacherId, day, s1) || this.isTeacherBusyAt(item.teacherId, day, s2)) return false;
-      if (this.isBatchBusyAt(item.batchId, day, s1) || this.isBatchBusyAt(item.batchId, day, s2)) return false;
-      return true;
     }
+
+    return true;
   }
 
   /**
    * Reserving/Freeing logic helper
    */
-  private toggleReservation(item: ScheduleItem, roomNumber: string, day: string, slot: number, reserve: boolean) {
-    const slots = item.courseType === 'Theory' ? [slot] : [slot, slot + 1];
+  private toggleReservation(
+    item: ScheduleItem,
+    roomNumber: string,
+    day: string,
+    slot: number,
+    reserve: boolean,
+  ) {
+    const slots = item.courseType === "Theory" ? [slot] : [slot, slot + 1];
 
     for (const s of slots) {
-      if (this.teacherBusy[item.teacherId] && this.teacherBusy[item.teacherId][day]) {
+      if (
+        this.teacherBusy[item.teacherId] &&
+        this.teacherBusy[item.teacherId][day]
+      ) {
         this.teacherBusy[item.teacherId][day][s] = reserve;
       }
       if (this.roomBusy[roomNumber] && this.roomBusy[roomNumber][day]) {
@@ -427,7 +594,7 @@ export class RoutineScheduler {
       }
     }
 
-    if (item.courseType === 'Theory') {
+    if (item.courseType === "Theory") {
       if (!this.scheduledDaysForCourse[item.id]) {
         this.scheduledDaysForCourse[item.id] = {};
       }
@@ -444,13 +611,13 @@ export class RoutineScheduler {
     await Routine.destroy({ truncate: true });
 
     // Bulk create
-    const routinesToCreate = slots.map(s => ({
+    const routinesToCreate = slots.map((s) => ({
       courseId: s.courseId,
       teacherId: s.teacherId,
       roomNumber: s.roomNumber,
       batchId: s.batchId,
       day: s.day,
-      slot: s.slot
+      slot: s.slot,
     }));
 
     await Routine.bulkCreate(routinesToCreate);

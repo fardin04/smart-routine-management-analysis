@@ -86,11 +86,10 @@ if (!roomNumber) {
         return;
       }
 
-      room.capacity = capacityVal;
-      room.type = type;
-      await room.save();
+      
+      const updated = await room.update({ capacity: capacityVal, type });
 
-      res.status(200).json(room);
+      res.status(200).json(updated);
     } catch (err: any) {
       res.status(500).json({ error: err.message || 'Failed to update room.' });
     }

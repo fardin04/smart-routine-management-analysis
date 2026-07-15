@@ -1,11 +1,14 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model,InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import sequelize from '../config/db';
 
-export class Batch extends Model {
-  public id!: number;
-  public batchNumber!: string;
-  public section!: string;
-  public studentCount!: number;
+export class Batch extends Model<
+  InferAttributes<Batch>,
+  InferCreationAttributes<Batch>
+> {
+  declare id: CreationOptional<number>;
+  declare batchNumber: string;
+  declare section: string;
+  declare studentCount: number;
 }
 
 Batch.init(

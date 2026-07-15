@@ -76,8 +76,14 @@ export default function CoursesTab() {
         courseType,
         teacherId: teacherId || null,
         batchId: parseInt(batchId, 10)
+
       });
-      setCourses([response.data, ...courses]);
+
+      if (response.data) {
+  setCourses([response.data, ...courses]);
+} else {
+  await loadAllDependencies();
+}
       setFormData({
         courseName: '',
         courseCode: '',
@@ -140,10 +146,13 @@ export default function CoursesTab() {
   };
 
   const filteredCourses = courses.filter(c =>
-    c.courseName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.courseCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  c &&
+  (
+    c.courseName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.courseCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (c.teacher?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  )
+);
 
   return (
     <div className="space-y-6" id="courses-section">

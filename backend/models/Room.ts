@@ -1,11 +1,7 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/db';
 
-export class Room extends Model {
-  public roomNumber!: string;
-  public capacity!: number;
-  public type!: 'Classroom' | 'Laboratory';
-}
+export class Room extends Model {}
 
 Room.init(
   {
