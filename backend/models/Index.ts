@@ -24,9 +24,9 @@ Routine.belongsTo(Course, { foreignKey: 'courseId', as: 'course' });
 Teacher.hasMany(Routine, { foreignKey: 'teacherId', as: 'routines' });
 Routine.belongsTo(Teacher, { foreignKey: 'teacherId', as: 'teacher' });
 
-// Room <-> Routine (One-to-Many)
-Room.hasMany(Routine, { foreignKey: 'roomNumber', as: 'routines' });
-Routine.belongsTo(Room, { foreignKey: 'roomNumber', as: 'room' });
+// Room <-> Routine (One-to-Many with roomNumber as primary target key)
+Room.hasMany(Routine, { foreignKey: 'roomNumber', sourceKey: 'roomNumber', as: 'routines' });
+Routine.belongsTo(Room, { foreignKey: 'roomNumber', targetKey: 'roomNumber', as: 'room' });
 
 // Batch <-> Routine (One-to-Many)
 Batch.hasMany(Routine, { foreignKey: 'batchId', as: 'routines' });

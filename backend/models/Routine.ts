@@ -1,20 +1,25 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, InferAttributes, InferCreationAttributes, CreationOptional } from 'sequelize';
 import sequelize from '../config/db';
 
-export class Routine extends Model {
-  public id!: number;
-  public courseId!: number;
-  public teacherId!: string;
-  public roomNumber!: string;
-  public batchId!: number;
-  public day!: 'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday';
-  public slot!: number; // Slot index: 1-8
+export class Routine extends Model<
+  InferAttributes<Routine>,
+  InferCreationAttributes<Routine>
+> {
+  // Use "declare" to prevent TypeScript from compiling fields down into physical, 
+  // overriding instance variables that break Sequelize getters/setters.
+  declare id: CreationOptional<number>;
+  declare courseId: number;
+  declare teacherId: string;
+  declare roomNumber: string;
+  declare batchId: number;
+  declare day: 'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday';
+  declare slot: number;
 
-  // Associated virtual attributes
-  public course?: any;
-  public teacher?: any;
-  public room?: any;
-  public batch?: any;
+  // Type associations explicitly
+  declare course?: any;
+  declare teacher?: any;
+  declare room?: any;
+  declare batch?: any;
 }
 
 Routine.init(

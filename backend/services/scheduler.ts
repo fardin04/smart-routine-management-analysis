@@ -66,13 +66,13 @@ export class RoutineScheduler {
     // Theory needs 2 sessions (each 1 slot). Lab needs 1 session (requires 2 consecutive slots).
     const itemsToSchedule: ScheduleItem[] = [];
     for (const course of coursesList) {
-      if (!course.teacherId) {
+      if (!course.getDataValue('teacherId')) {
         return {
           success: false,
           conflicts: [
             {
-              failedCourse: course.courseName,
-              courseCode: course.courseCode,
+              failedCourse: course.getDataValue('courseName'),
+              courseCode: course.getDataValue('courseCode'),
               reason: "Teacher not assigned to the course.",
             },
           ],
@@ -80,25 +80,25 @@ export class RoutineScheduler {
       }
 
       // Fetch batch info safely
-      const associatedBatch = await Batch.findByPk(course.batchId);
+      const associatedBatch = await Batch.findByPk(course.getDataValue('batchId'));
       if (!associatedBatch) {
         return {
           success: false,
           conflicts: [
             {
-              failedCourse: course.courseName,
-              courseCode: course.courseCode,
+              failedCourse: course.getDataValue('courseName'),
+              courseCode: course.getDataValue('courseCode'),
               reason: "Associated class batch not found.",
             },
           ],
         };
       }
 
-      const studentCount = associatedBatch.studentCount;
+      const studentCount = associatedBatch.getDataValue('studentCount');
 
       // Pre-flight Check: Ensure at least one room fits the capacity and type requirement
       const suitableRooms = roomsList.filter(room => {
-        if (course.courseType === 'Lab' && room.type !== 'Laboratory') {
+        if (course.getDataValue('courseType') === 'Lab' && room.getDataValue('type') !== 'Laboratory') {
           return false;
         }
 
@@ -107,51 +107,51 @@ export class RoutineScheduler {
 
       if (suitableRooms.length === 0) {
         const errorReason =
-          course.courseType === "Lab"
+          course.getDataValue('courseType') === "Lab"
             ? `No Laboratory room with capacity of ${studentCount} seats exists.`
             : `No Classroom with capacity of ${studentCount} seats exists.`;
         return {
           success: false,
           conflicts: [
             {
-              failedCourse: course.courseName,
-              courseCode: course.courseCode,
+              failedCourse: course.getDataValue('courseName'),
+              courseCode: course.getDataValue('courseCode'),
               reason: errorReason,
             },
           ],
         };
       }
 
-      if (course.courseType === "Theory") {
+      if (course.getDataValue('courseType') === "Theory") {
         itemsToSchedule.push({
-          id: course.id,
-          courseName: course.courseName,
-          courseCode: course.courseCode,
+          id: course.getDataValue('id') ?? 0,
+          courseName: course.getDataValue('courseName') ?? 'Unknown',
+          courseCode: course.getDataValue('courseCode') ?? 'N/A',
           courseType: "Theory",
-          teacherId: course.teacherId,
-          batchId: course.batchId,
+          teacherId: course.getDataValue('teacherId') ?? '',
+          batchId: course.getDataValue('batchId') ?? 0,
           studentCount,
           sessionIndex: 1,
         });
         itemsToSchedule.push({
-          id: course.id,
-          courseName: course.courseName,
-          courseCode: course.courseCode,
+          id: course.getDataValue('id') ?? 0,
+          courseName: course.getDataValue('courseName') ?? 'Unknown',
+          courseCode: course.getDataValue('courseCode') ?? 'N/A',
           courseType: "Theory",
-          teacherId: course.teacherId,
-          batchId: course.batchId,
+          teacherId: course.getDataValue('teacherId') ?? '',
+          batchId: course.getDataValue('batchId') ?? 0,
           studentCount,
           sessionIndex: 2,
         });
       } else {
         // Lab course = one lab session
         itemsToSchedule.push({
-          id: course.id,
-          courseName: course.courseName,
-          courseCode: course.courseCode,
+          id: course.getDataValue('id') ?? 0,
+          courseName: course.getDataValue('courseName') ?? 'Unknown',
+          courseCode: course.getDataValue('courseCode') ?? 'N/A',
           courseType: "Lab",
-          teacherId: course.teacherId,
-          batchId: course.batchId,
+          teacherId: course.getDataValue('teacherId') ?? '',
+          batchId: course.getDataValue('batchId') ?? 0,
           studentCount,
           sessionIndex: 1,
         });
@@ -405,7 +405,7 @@ export class RoutineScheduler {
       const failedCourseIds = Object.keys(conflictsMap).map(Number);
 
       for (const cid of failedCourseIds) {
-        const matchingCourse = coursesList.find((c) => c.id === cid);
+        const matchingCourse = coursesList.find((c) => c.getDataValue('id') === cid);
         if (matchingCourse) {
           const reasonsSample = conflictsMap[cid];
           let normalizedReason = "No available slot matching constraints.";
@@ -434,8 +434,8 @@ export class RoutineScheduler {
           }
 
           conflicts.push({
-            failedCourse: matchingCourse.courseName,
-            courseCode: matchingCourse.courseCode,
+            failedCourse: matchingCourse.getDataValue('courseName'),
+            courseCode: matchingCourse.getDataValue('courseCode'),
             reason: normalizedReason,
           });
         }
@@ -469,9 +469,9 @@ export class RoutineScheduler {
     this.scheduledDaysForCourse = {};
 
     for (const t of teachers) {
-      this.teacherBusy[t.id] = {};
+      this.teacherBusy[t.getDataValue('id')] = {};
       for (const d of DAYS) {
-        this.teacherBusy[t.id][d] = new Array(9).fill(false); // index 0-8 (using 1-8)
+        this.teacherBusy[t.getDataValue('id')][d] = new Array(9).fill(false); // index 0-8 (using 1-8)
       }
     }
 
@@ -485,9 +485,9 @@ export class RoutineScheduler {
     }
 
     for (const b of batches) {
-      this.batchBusy[b.id] = {};
+      this.batchBusy[b.getDataValue('id')] = {};
       for (const d of DAYS) {
-        this.batchBusy[b.id][d] = new Array(9).fill(false);
+        this.batchBusy[b.getDataValue('id')][d] = new Array(9).fill(false);
       }
     }
   }

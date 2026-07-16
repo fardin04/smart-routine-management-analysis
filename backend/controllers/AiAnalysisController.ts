@@ -61,9 +61,9 @@ export class AiAnalysisController {
         totalRooms: rooms.length,
         totalBatches: batches.length,
         totalCourses: courses.length,
-        rooms: rooms.map(r => ({ roomNumber: r.roomNumber, capacity: r.capacity, type: r.type })),
-        teachers: teachers.map(t => ({ id: t.id, name: t.name })),
-        batches: batches.map(b => ({ id: b.id, name: `${b.batchNumber} Section ${b.section}`, count: b.studentCount }))
+        rooms: rooms.map(r => ({ roomNumber: r.getDataValue('roomNumber'), capacity: r.getDataValue('capacity'), type: r.getDataValue('type') })),
+        teachers: teachers.map(t => ({ id: t.getDataValue('id'), name: t.getDataValue('name') })),
+        batches: batches.map(b => ({ id: b.getDataValue('id'), name: `${b.getDataValue('batchNumber')} Section ${b.getDataValue('section')}`, count: b.getDataValue('studentCount') }))
       };
 
       // 4. Initialize `@google/genai`
@@ -92,7 +92,7 @@ Based on this data, provide:
 3. Student busy days and schedule balance (e.g. whether a batch section has classes spread out too much, or has 4 classes in a single day).
 4. Scheduling inefficiencies (e.g. gaps in rooms, or unbalanced distribution of classes).`;
 
-      const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-3.5-flash'];
+      const modelsToTry = ['gemini-2.5-flash','gemini-3.1-flash-lite', 'gemini-2.5-pro', 'gemini-3.5-flash'];
       let response: any = null;
       let lastError: any = null;
 
