@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import type { Routine, Teacher, Batch } from '../types';
-import { Search, Printer, Sliders, Calendar, Users, Eye, HelpCircle, FileDown, Check } from 'lucide-react';
+import { Search, Printer, Sliders, Calendar, Users, Eye, HelpCircle, FileDown, Check, Maximize2, Minimize2 } from 'lucide-react';
 
 export default function RoutineViewerTab() {
   const [routines, setRoutines] = useState<Routine[]>([]);
@@ -17,6 +17,7 @@ export default function RoutineViewerTab() {
 
   // Mode state
   const [isPrintFriendly, setIsPrintFriendly] = useState(false);
+  const [isMatrixFullscreen, setIsMatrixFullscreen] = useState(false);
 
   const formatDays: Array<'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday'> = [
     'Sunday',
@@ -313,15 +314,32 @@ export default function RoutineViewerTab() {
             </div>
           ) : (
             /* DETAILED ACADEMIC MATRIX GRID DESIGN */
-            <div className="bg-white rounded-lg border border-gray-200 shadow-xs overflow-hidden flex flex-col">
+            <div className={`${
+              isMatrixFullscreen 
+                ? 'fixed inset-0 z-50 bg-white rounded-none shadow-none overflow-auto flex flex-col' 
+                : 'bg-white rounded-lg border border-gray-200 shadow-xs overflow-hidden flex flex-col'
+            }`}>
               <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-700 flex items-center gap-1.5">
                   <Calendar className="w-4 h-4 text-sky-600" />
                   Timetable Allocation Matrix
                 </span>
-                <span className="text-[10px] font-semibold text-gray-400 leading-none">
-                  Row: Academic Day | Column: Time Hour Slot Index
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-[10px] font-semibold text-gray-400 leading-none">
+                    Row: Academic Day | Column: Time Hour Slot Index
+                  </span>
+                  <button
+                    onClick={() => setIsMatrixFullscreen(!isMatrixFullscreen)}
+                    className="p-1.5 hover:bg-gray-200 rounded transition text-gray-600 hover:text-gray-900 cursor-pointer"
+                    title={isMatrixFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                  >
+                    {isMatrixFullscreen ? (
+                      <Minimize2 className="w-4 h-4" />
+                    ) : (
+                      <Maximize2 className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div className="overflow-x-auto">
