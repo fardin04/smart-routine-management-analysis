@@ -6,6 +6,403 @@ The application features a **deterministic constraint-based programmatic backtra
 
 ---
 
+## 🚀 Quick Start & Setup
+
+### Prerequisites
+- **Node.js** v18+ with npm
+- **PostgreSQL** (cloud or local) OR SQLite (auto-fallback)
+- **Gemini API Key** (from [Google AI Studio](https://aistudio.google.com/app/apikeys))
+
+### Installation
+
+#### 1. Clone & Setup Project
+```bash
+git clone <repository-url>
+cd smart-routine-management-analysis
+npm install
+```
+
+#### 2. Backend Setup
+```bash
+cd backend
+npm install
+```
+
+#### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+```
+
+#### 4. Environment Configuration
+
+Create `.env` file in the **backend** directory:
+
+```env
+# Database Configuration (Optional - defaults to SQLite if not set)
+DB_HOST=your-postgres-host
+DB_USER=your-db-user
+DB_PASSWORD=your-db-password
+DB_NAME=routine_management_db
+DB_DIALECT=postgres
+
+# AI Integration (REQUIRED for AI Analysis features)
+GEMINI_API_KEY=your-gemini-api-key
+
+# Authentication
+JWT_SECRET=your-jwt-secret-key
+NODE_ENV=development
+PORT=5000
+```
+
+#### 5. Start the Application
+
+**Terminal 1 - Backend Server:**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2 - Frontend Application:**
+```bash
+cd frontend
+npm run dev
+```
+
+The application will be available at `http://localhost:5173` (Vite dev server).
+
+### Default Credentials
+- **Username:** `admin`
+- **Password:** `admin123`
+
+---
+
+## 📁 Project Structure
+
+```
+├── 📁 .vite
+│   └── 📁 deps
+│       ├── ⚙️ _metadata.json
+│       └── ⚙️ package.json
+├── 📁 backend
+│   ├── 📁 config
+│   │   └── 📄 db.ts
+│   ├── 📁 controllers
+│   │   ├── 📄 AiAnalysisController.ts
+│   │   ├── 📄 AuthController.ts
+│   │   ├── 📄 BatchController.ts
+│   │   ├── 📄 CourseController.ts
+│   │   ├── 📄 RoomController.ts
+│   │   ├── 📄 RoutineController.ts
+│   │   └── 📄 TeacherController.ts
+│   ├── 📁 middleware
+│   │   └── 📄 auth.ts
+│   ├── 📁 models
+│   │   ├── 📄 Admin.ts
+│   │   ├── 📄 Batch.ts
+│   │   ├── 📄 Course.ts
+│   │   ├── 📄 Index.ts
+│   │   ├── 📄 Room.ts
+│   │   ├── 📄 Routine.ts
+│   │   └── 📄 Teacher.ts
+│   ├── 📁 routes
+│   │   ├── 📄 aiRoutes.ts
+│   │   ├── 📄 authRoutes.ts
+│   │   ├── 📄 batchRoutes.ts
+│   │   ├── 📄 courseRoutes.ts
+│   │   ├── 📄 index.ts
+│   │   ├── 📄 roomRoutes.ts
+│   │   ├── 📄 routineRoutes.ts
+│   │   └── 📄 teacherRoutes.ts
+│   ├── 📁 services
+│   │   └── 📄 scheduler.ts
+│   ├── 📁 utils
+│   │   └── 📄 formatter.ts
+│   ├── ⚙️ .gitignore
+│   ├── ⚙️ .gitkeep
+│   ├── 📄 app.ts
+│   ├── ⚙️ package-lock.json
+│   ├── ⚙️ package.json
+│   ├── 📄 server.ts
+│   └── ⚙️ tsconfig.json
+├── 📁 frontend
+│   ├── 📁 src
+│   │   ├── 📁 components
+│   │   │   ├── 📄 AiAnalysisTab.tsx
+│   │   │   ├── 📄 BatchesTab.tsx
+│   │   │   ├── 📄 CoursesTab.tsx
+│   │   │   ├── 📄 DashboardView.tsx
+│   │   │   ├── 📄 ReportsTab.tsx
+│   │   │   ├── 📄 RoomsTab.tsx
+│   │   │   ├── 📄 RoutineGeneratorTab.tsx
+│   │   │   ├── 📄 RoutineViewerTab.tsx
+│   │   │   └── 📄 TeachersTab.tsx
+│   │   ├── 📁 services
+│   │   │   └── 📄 api.ts
+│   │   ├── 🎨 App.css
+│   │   ├── 📄 App.tsx
+│   │   ├── 🎨 index.css
+│   │   ├── 📄 main.tsx
+│   │   └── 📄 types.ts
+│   ├── ⚙️ .gitignore
+│   ├── ⚙️ .gitkeep
+│   ├── ⚙️ .oxlintrc.json
+│   ├── 🌐 index.html
+│   ├── ⚙️ package-lock.json
+│   ├── ⚙️ package.json
+│   ├── ⚙️ tsconfig.app.json
+│   ├── ⚙️ tsconfig.json
+│   ├── ⚙️ tsconfig.node.json
+│   └── 📄 vite.config.ts
+├── ⚙️ .gitignore
+├── 📝 README.md
+├── ⚙️ package-lock.json
+└── ⚙️ package.json
+```
+
+---
+
+## ✨ Key Features Overview
+
+### 1. **Data Management**
+   - ✅ Manage Teachers (faculty with ID, name, department)
+   - ✅ Manage Rooms (classrooms & laboratories with capacity)
+   - ✅ Manage Batches (student groups with section info)
+   - ✅ Manage Courses (theory & lab courses with prerequisites)
+
+### 2. **Intelligent Routine Generation**
+   - 🤖 Backtracking constraint solver with automatic schedule creation
+   - 🔒 Conflict detection and resolution
+   - 📊 Handles complex multi-constraint scenarios
+   - ⚡ Generates optimized schedules in seconds
+
+### 3. **Routine Visualization**
+   - 📅 Interactive timetable matrix view
+   - 🔍 Multi-filter system (by batch, teacher, day)
+   - 🖨️ Print-friendly layout option
+   - 💾 Export schedule as JSON
+
+### 4. **AI-Powered Analysis**
+   - 🧠 Gemini AI schedule audit engine
+   - 📈 Detailed workload analysis (teacher hours, room utilization)
+   - ⚠️ Problem identification with specific metrics
+   - 💡 Concrete optimization recommendations
+   - 📊 Efficiency scoring (0-100 scale)
+
+### 5. **Reporting & Export**
+   - 📋 Generate comprehensive reports
+   - 📥 Export data in multiple formats
+   - 📊 Visual analytics and statistics
+
+---
+
+## 🔄 How It Works - System Architecture
+
+### Constraint-Based Scheduling Algorithm
+
+The system uses a **Backtracking Constraint Satisfaction Problem (CSP)** solver:
+
+```
+1. LOAD REQUIREMENTS
+   ├─ Parse all courses, teachers, batches, rooms
+   ├─ Validate prerequisites (room type, capacity, teacher assignment)
+   └─ Pre-flight checks (feasibility assessment)
+
+2. PREPARE ITEMS TO SCHEDULE
+   ├─ Theory courses → 2 sessions (1 slot each)
+   ├─ Lab courses → 1 session (2 consecutive slots)
+   └─ Sort by difficulty (labs first, larger batches first)
+
+3. BACKTRACKING SEARCH
+   ├─ For each course/session:
+   │  ├─ Try each day (sorted by load)
+   │  ├─ Try each time slot (sorted by availability)
+   │  └─ Try each compatible room
+   │
+   ├─ Check 4 hard constraints:
+   │  ├─ Teacher availability (no overlaps)
+   │  ├─ Room availability (no overlaps)
+   │  ├─ Batch availability (no overlaps)
+   │  └─ Room type match (Lab→Lab, Theory→Classroom)
+   │
+   └─ Backtrack if any constraint fails
+
+4. OPTIMIZATION HEURISTICS
+   ├─ Day-load balancing (spread classes evenly)
+   ├─ Theory no-adjacency rule (different days/non-adjacent)
+   └─ Room capacity matching (fit to optimal size)
+
+5. PERSIST SOLUTION
+   └─ Save to database once all constraints satisfied
+```
+
+### Constraint Connections & Dependencies
+
+```
+ROUTINE (Hub Entity)
+├── courseId (FK) ─────► COURSE ─────► TEACHER (FK)
+│                             │
+│                             └────► BATCH (FK)
+│
+├── teacherId (FK) ─────► TEACHER (availability check)
+├── roomNumber (FK) ─────► ROOM (capacity & type check)
+└── batchId (FK) ────────► BATCH (student count)
+
+HARD CONSTRAINTS:
+1. Teacher Constraint: ∀ teacher T, day D, slot S → max 1 class
+2. Room Constraint: ∀ room R, day D, slot S → max 1 class
+3. Batch Constraint: ∀ batch B, day D, slot S → max 1 class
+4. Room Type: Theory courses → Classroom; Lab courses → Laboratory
+5. Room Capacity: room.capacity ≥ batch.studentCount
+6. Lab Slots: Lab requires (slot, slot+1) consecutive slots
+
+SOFT CONSTRAINTS (for optimization):
+1. Theory Distribution: No same course on same day
+2. Theory Adjacency: No adjacent-day scheduling for same course
+3. Load Balancing: Even distribution across days and slots
+```
+
+---
+
+## 📱 Interface Tabs Explained
+
+### **1. Dashboard Tab** 
+- Overview of system status
+- Quick statistics (total teachers, rooms, batches, courses)
+- Recent schedule generation history
+- System health indicators
+
+### **2. Teachers Tab**
+- View/add/edit/delete teacher profiles
+- Assign courses to teachers
+- Track teacher workload
+- Search and filter by department/name
+
+### **3. Rooms Tab**
+- Manage classrooms and laboratory rooms
+- Set room capacity and type
+- Track room utilization
+- View room schedules
+
+### **4. Batches Tab**
+- Manage student batches (cohorts)
+- Set batch number, section, and student count
+- Link courses to batches
+- View batch schedules
+
+### **5. Courses Tab**
+- Create theory and laboratory courses
+- Assign teachers to courses
+- Link courses to batches
+- Set course code and type
+
+### **6. Routine Generator Tab**
+- Trigger automated schedule generation
+- View generation progress and status
+- See conflict reports if generation fails
+- Configure scheduling preferences
+
+### **7. Routine Viewer Tab**
+- View generated timetable in interactive matrix
+- **Timetable Matrix Features:**
+  - Rows: Academic days (Sun-Thu)
+  - Columns: Time slots (8 slots/day)
+  - **Fullscreen mode** for better visibility
+  - Filter by batch, teacher, or day
+  - Color coding: Sky blue (lectures), Amber (lab continuation)
+  - Cell info: Course code, type, room, teacher, batch
+- **Print-friendly view:** Compact table format for exporting to PDF
+- **Export JSON:** Download raw schedule data
+
+### **8. AI Analysis Tab**
+- Run comprehensive Gemini AI audit
+- **Analysis Components:**
+  - **Executive Summary:** Overall schedule health with efficiency score (0-100)
+  - **Actionable Bulletins:** 5-7 specific optimization recommendations
+  - **Teacher Workload Assessor:** Detailed breakdown of each teacher's weekly load, daily distribution, and overload flags
+  - **Room Utilization Assessor:** Room-by-room efficiency analysis with capacity match percentages
+  - **Comprehensive Report:** Includes:
+    - Teacher workload table with daily metrics
+    - Room utilization table with % occupancy
+    - Batch scheduling analysis with fragmentation detection
+    - Problem severity assessment
+    - Optimization roadmap with concrete actions
+    - Resource efficiency KPIs
+
+### **9. Reports Tab**
+- Generate downloadable reports
+- Custom report creation
+- Data export options
+- Schedule statistics
+
+---
+
+## 🔍 AI Analysis Deep Dive
+
+### What Gets Analyzed?
+
+The **Gemini AI Auditing Engine** evaluates:
+
+1. **Teacher Workload Metrics**
+   - Total weekly slots per teacher
+   - Daily distribution and load balancing
+   - Course variety and specialization
+   - Overload detection (>8 slots/week or >3 slots/day)
+   - Consecutive class burnout risks
+
+2. **Room Utilization Efficiency**
+   - % of available slots actually used
+   - Capacity matching (room size vs. actual enrollment)
+   - Capacity wastage % (unused seats)
+   - Room type appropriateness (Lab vs. Classroom)
+   - Underutilization warnings (<30% usage)
+
+3. **Batch Scheduling Quality**
+   - Student class fragmentation analysis
+   - Time gaps between classes (for exam study time)
+   - Balanced daily load distribution
+   - Course distribution across week
+
+4. **System-Wide Problems Identified**
+   - Hard conflicts (constraint violations)
+   - Soft conflicts (suboptimal scheduling)
+   - Bottleneck rooms or time slots
+   - Teacher overload situations
+   - Capacity mismatch scenarios
+
+5. **Efficiency Scoring Factors**
+   - Teacher load balance (40%)
+   - Room utilization rate (30%)
+   - Batch schedule quality (20%)
+   - Constraint satisfaction (10%)
+
+### Sample Analysis Output
+
+```
+Executive Summary:
+"Schedule shows 72/100 efficiency. Teacher MHA exhibits overload (6 slots/week, 
+3 on Wed). Room LAB-502 underutilized (25%). Recommend: redistribute MHA's 
+courses to 2 other teachers, move 1 lab to LAB-501."
+
+Teacher Workload Table:
+| Teacher | Total Slots | Max Daily | Courses | Status |
+|---------|-------------|-----------|---------|--------|
+| Dr. Ahmed | 4 | 1 | 2 | ✓ Balanced |
+| Minhaz Sir | 6 | 3 | 2 | ⚠️ Overload |
+| Dr. Fatima | 3 | 1 | 2 | ✓ Balanced |
+
+Room Utilization Table:
+| Room | Type | Slots Used | % Utilization | Capacity Match | Status |
+|------|------|-----------|---------------|----------------|--------|
+| C-101 | Class | 12 | 30% | 95% | ⚠️ Underused |
+| LAB-502 | Lab | 4 | 10% | 45% | ⚠️ Severe underuse |
+| C-202 | Class | 18 | 45% | 98% | ✓ Good |
+```
+
+---
+
+---
+
 ##  Key Technical Stack
 
 ### Backend Services
