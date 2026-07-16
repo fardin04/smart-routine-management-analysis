@@ -9,17 +9,21 @@ const app = express();
 // Enable Cross-Origin Resource Sharing
 const allowedOrigins = [
   'http://localhost:5173', // Vite dev server
-  'https://smart-routine-management.vercel.app/', // Vercel deployment
+  'http://localhost:3000', // React dev server
+  'https://smart-routine-management.vercel.app', // Vercel deployment (no trailing slash)
 ];
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.warn(`CORS rejected origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Limit handling max JSON request payloads

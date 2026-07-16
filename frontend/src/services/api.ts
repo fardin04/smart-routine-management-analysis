@@ -6,9 +6,10 @@ const isLocalhost = typeof window !== 'undefined' &&
 
 // Get backend API URL dynamically matching the deployment environment
 const API_URL = 
-  (import.meta as any).env?.VITE_API_URL || 
-  (import.meta as any).env?.VITE_API_URL_LOCAL || 
-  (isLocalhost ? 'http://localhost:5000/api' : '/api');
+  import.meta.env.VITE_API_URL || 
+  (isLocalhost ? 'http://localhost:5000/api' : 'https://smart-routine-management-backend.onrender.com/api');
+
+console.log('🔌 API Base URL:', API_URL); // Debug log
 
 // Create safe Axios connection
 const api = axios.create({
@@ -26,5 +27,17 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Error handler for network issues
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('university_academic_jwt_token');
+      window.location.href = '/';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
