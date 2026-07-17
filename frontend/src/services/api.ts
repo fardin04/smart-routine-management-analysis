@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+const ensureApiPrefix = (url: string) => {
+  const trimmedUrl = url.trim().replace(/\/$/, '');
+  return trimmedUrl.endsWith('/api') ? trimmedUrl : `${trimmedUrl}/api`;
+};
+
 // Detect if we are running in a browser on a local environment
 const isLocalhost = typeof window !== 'undefined' && 
   (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
@@ -7,13 +12,15 @@ const isLocalhost = typeof window !== 'undefined' &&
 // Get backend API URL dynamically matching the deployment environment
 const API_URL = 
   import.meta.env.VITE_API_URL || 
-  (isLocalhost ? 'http://localhost:5000/api' : 'https://smart-routine-management-backend.onrender.com/api');
+  (isLocalhost ? 'http://localhost:5000/api' : 'https://smart-routine-management-backend.onrender.com');
 
-console.log('🔌 API Base URL:', API_URL); // Debug log
+const NORMALIZED_API_URL = ensureApiPrefix(API_URL);
+
+console.log('🔌 API Base URL:', NORMALIZED_API_URL); // Debug log
 
 // Create safe Axios connection
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: NORMALIZED_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
