@@ -6,26 +6,43 @@ const app = express();
 
 
 
-// Enable Cross-Origin Resource Sharing
-const allowedOrigins = [
-  'http://localhost:5173', // Vite dev server
-  'http://localhost:3000', // React dev server
-  'https://smart-routine-management.vercel.app', // Vercel deployment (no trailing slash)
-];
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS rejected origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use((req, res, next): void => {
+    const origin = req.headers.origin;
+    const fallbackClientUrl = process.env.CLIENT_URL || 'https://zenithethnic.com';
+    const configuredOrigins = [
+      process.env.CLIENT_URL,
+      process.env.ALLOWED_ORIGINS,
+      'https://smart-routine-management.vercel.app',
+      'https://www.smart-routine-management.vercel.app',
+      'https://smart-routine-management.vercel.app/',
+      'http://localhost:3000',
+      'http://localhost:5173'
+    ]
+      .filter(Boolean)
+      .flatMap((value) => String(value).split(','))
+      .map((value) => value.trim())
+      .filter(Boolean);
 
+    const allowedOrigins = new Set(configuredOrigins);
+
+    // Deployment marker: update to trigger a clean redeploy after origin changes.
+    if (origin && (allowedOrigins.has(origin) || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:'))) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+    } else {
+      res.setHeader('Access-Control-Allow-Origin', fallbackClientUrl);
+    }
+
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+
+    // Handle preflight request immediately
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+      return;
+    }
+    next();
+  });
 // Limit handling max JSON request payloads
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
