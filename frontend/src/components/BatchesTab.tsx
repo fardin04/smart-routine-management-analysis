@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { type Batch } from '../types';
 import { Search, Plus, Edit, Trash2, Check, X, ShieldAlert, Users } from 'lucide-react';
@@ -217,6 +217,7 @@ export default function BatchesTab() {
                 {loading && batches.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="text-center py-6 text-gray-400">Loading batch details...</td>
+                    
                   </tr>
                 ) : filteredBatches.length === 0 ? (
                   <tr>
