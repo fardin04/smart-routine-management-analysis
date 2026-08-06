@@ -61,6 +61,33 @@ export class RoutineScheduler {
 
     // Initialize tracking tables
     this.initializeBusyTrackers(teachersList, roomsList, batchesList);
+    // Mark existing persisted routines as busy so generator doesn't conflict with them
+    const existingRoutines = await Routine.findAll({ include: [{ model: Course, as: 'course' }] });
+    for (const r of existingRoutines) {
+      const day = r.getDataValue('day');
+      const slot = r.getDataValue('slot');
+      const roomNumber = r.getDataValue('roomNumber');
+      const teacherId = r.getDataValue('teacherId');
+      const batchId = r.getDataValue('batchId');
+      const courseId = r.getDataValue('courseId');
+
+      if (roomNumber && this.roomBusy[roomNumber] && this.roomBusy[roomNumber][day]) {
+        this.roomBusy[roomNumber][day][slot] = true;
+      }
+      if (teacherId && this.teacherBusy[teacherId] && this.teacherBusy[teacherId][day]) {
+        this.teacherBusy[teacherId][day][slot] = true;
+      }
+      if (batchId && this.batchBusy[batchId] && this.batchBusy[batchId][day]) {
+        this.batchBusy[batchId][day][slot] = true;
+      }
+
+      // Track days scheduled for theory courses to preserve non-adjacent rule
+      const course = r.getDataValue('course');
+      if (course && course.getDataValue && course.getDataValue('courseType') === 'Theory') {
+        if (!this.scheduledDaysForCourse[courseId]) this.scheduledDaysForCourse[courseId] = {};
+        this.scheduledDaysForCourse[courseId][day] = true;
+      }
+    }
 
     // 2. Prepare scheduling items
     // Theory needs 2 sessions (each 1 slot). Lab needs 1 session (requires 2 consecutive slots).
@@ -184,8 +211,8 @@ export class RoutineScheduler {
       const item = itemsToSchedule[itemIdx];
       const reasons: string[] = [];
 
-      // Find compatible rooms
-      const candidateRooms = roomsList.filter((room) => {
+      // Find compatible rooms (capacity/type). Day availability will be applied per candidate day below.
+      const baseCandidateRooms = roomsList.filter((room) => {
         // Lab courses MUST use Laboratory rooms only
         if (item.courseType === "Lab") {
           if (room.getDataValue("type") !== "Laboratory") {
@@ -211,7 +238,7 @@ export class RoutineScheduler {
         );
       });
 
-      if (candidateRooms.length === 0) {
+      if (baseCandidateRooms.length === 0) {
         conflictsMap[item.id] = conflictsMap[item.id] || [];
         conflictsMap[item.id].push(
           "No suitable room found (size or room type mismatch).",
@@ -227,6 +254,27 @@ export class RoutineScheduler {
       });
 
       for (const day of candidateDays) {
+        // Filter rooms further by day availability
+        const candidateRooms = baseCandidateRooms.filter((room) => {
+          let availableDaysRaw: any = room.getDataValue('availableDays');
+          let availableDays: string[] = ['Sunday','Monday','Tuesday','Wednesday','Thursday'];
+          try {
+            if (Array.isArray(availableDaysRaw)) {
+              availableDays = availableDaysRaw;
+            } else if (typeof availableDaysRaw === 'string') {
+              const parsed = JSON.parse(availableDaysRaw);
+              if (Array.isArray(parsed)) availableDays = parsed;
+            }
+          } catch (e) {
+            availableDays = ['Sunday','Monday','Tuesday','Wednesday','Thursday'];
+          }
+          return availableDays.includes(day);
+        });
+
+        if (candidateRooms.length === 0) {
+          // No rooms available on this day, try next day
+          continue;
+        }
         // For Theory: Avoid scheduling same course on the same day or adjacent days
         const isTheory = item.courseType === "Theory";
         if (isTheory) {
@@ -477,7 +525,21 @@ export class RoutineScheduler {
 
     for (const r of rooms) {
       const roomNum = r.getDataValue("roomNumber");
-      const availableDays: string[] = r.getDataValue('availableDays') || ['Sunday','Monday','Tuesday','Wednesday','Thursday'];
+      // availableDays may be stored as JSON array or stringified JSON; normalize to array
+      let availableDaysRaw: any = r.getDataValue('availableDays');
+      let availableDays: string[] = ['Sunday','Monday','Tuesday','Wednesday','Thursday'];
+      try {
+        if (Array.isArray(availableDaysRaw)) {
+          availableDays = availableDaysRaw;
+        } else if (typeof availableDaysRaw === 'string') {
+          const parsed = JSON.parse(availableDaysRaw);
+          if (Array.isArray(parsed)) availableDays = parsed;
+        }
+      } catch (e) {
+        // fallback to default
+        availableDays = ['Sunday','Monday','Tuesday','Wednesday','Thursday'];
+      }
+
       this.roomBusy[roomNum] = {};
       for (const d of DAYS) {
         // If the room is not available on a given day, mark all slots busy (unavailable)

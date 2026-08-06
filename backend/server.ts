@@ -1,5 +1,6 @@
 import app from './app';
 import { sequelize } from './models/Index';
+import { DataTypes } from 'sequelize';
 import bcrypt from 'bcryptjs';
 import { Admin } from './models/Admin';
 
@@ -12,6 +13,30 @@ async function bootstrap() {
     try {
       await sequelize.sync({ force: false });
       console.log('Database synced successfully.');
+
+      // Ensure new column `availableDays` exists in `rooms` table. Backfill defaults if missing.
+      try {
+        const qi = sequelize.getQueryInterface();
+        const tableDesc = await qi.describeTable('rooms');
+        if (!tableDesc['availableDays']) {
+          console.log('Applying schema change: adding rooms.availableDays column');
+          await qi.addColumn('rooms', 'availableDays', {
+            type: DataTypes.JSON,
+            allowNull: false,
+            defaultValue: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+          });
+
+          // Backfill existing rows with default availability
+          const defaultVal = JSON.stringify(['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']);
+          await sequelize.query(
+            `UPDATE rooms SET availableDays = :d WHERE availableDays IS NULL OR TRIM(COALESCE(availableDays, '')) = ''`,
+            { replacements: { d: defaultVal } },
+          );
+          console.log('Backfilled existing rooms.availableDays values');
+        }
+      } catch (mErr: any) {
+        console.warn('Could not apply rooms.availableDays migration automatically:', mErr.message || mErr);
+      }
 
       // Seed default admin if no admin exists
       const adminCount = await Admin.count();
