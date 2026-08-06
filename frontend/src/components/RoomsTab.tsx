@@ -12,8 +12,8 @@ export default function RoomsTab() {
 
   // Form states
   const [isEditing, setIsEditing] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ roomNumber: '', capacity: '', type: 'Classroom' });
-  const [editData, setEditData] = useState({ capacity: '', type: 'Classroom' });
+  const [formData, setFormData] = useState({ roomNumber: '', capacity: '', type: 'Classroom', availableDays: ['Sunday','Monday','Tuesday','Wednesday','Thursday'] });
+  const [editData, setEditData] = useState({ capacity: '', type: 'Classroom', availableDays: ['Sunday','Monday','Tuesday','Wednesday','Thursday'] });
 
   useEffect(() => {
     fetchRooms();
@@ -40,7 +40,7 @@ export default function RoomsTab() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const { roomNumber, capacity, type } = formData;
+    const { roomNumber, capacity, type, availableDays } = formData;
 
     if (!roomNumber.trim() || !capacity) {
       setError('Room Number and Room Capacity are mandatory fields.');
@@ -52,10 +52,11 @@ export default function RoomsTab() {
       const response = await api.post('/rooms', {
         roomNumber: roomNumber.trim().toUpperCase(),
         capacity: parseInt(capacity, 10),
-        type
+        type,
+        availableDays,
       });
       setRooms([response.data, ...rooms]);
-      setFormData({ roomNumber: '', capacity: '', type: 'Classroom' });
+      setFormData({ roomNumber: '', capacity: '', type: 'Classroom', availableDays: ['Sunday','Monday','Tuesday','Wednesday','Thursday'] });
       showSuccess(`Room ${response.data.roomNumber} has been added.`);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to register the new room profile.');
@@ -66,7 +67,7 @@ export default function RoomsTab() {
 
   const handleUpdate = async (roomNumber: string) => {
     setError(null);
-    const { capacity, type } = editData;
+    const { capacity, type, availableDays } = editData;
 
     if (!capacity) {
       setError('Please provide room seat capacity.');
@@ -77,7 +78,8 @@ export default function RoomsTab() {
       setLoading(true);
       const response = await api.put(`/rooms/${roomNumber}`, {
         capacity: parseInt(capacity, 10),
-        type
+        type,
+        availableDays,
       });
       setRooms(rooms.map(r => r.roomNumber === roomNumber ? response.data : r));
       setIsEditing(null);
@@ -174,6 +176,26 @@ export default function RoomsTab() {
                 <option value="Laboratory">Laboratory (Practical / Lab)</option>
               </select>
             </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-600 mb-1">Available Days</label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                {['Sunday','Monday','Tuesday','Wednesday','Thursday'].map(day => (
+                  <label key={day} className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.availableDays.includes(day)}
+                      onChange={e => {
+                        const next = e.target.checked
+                          ? [...formData.availableDays, day]
+                          : formData.availableDays.filter(d => d !== day);
+                        setFormData({ ...formData, availableDays: next });
+                      }}
+                    />
+                    {day}
+                  </label>
+                ))}
+              </div>
+            </div>
             <button
               type="submit"
               disabled={loading}
@@ -248,15 +270,37 @@ export default function RoomsTab() {
                       </td>
                       <td className="py-3.5 px-4">
                         {isEditing === room.roomNumber ? (
-                          <input
-                            type="number"
-                            value={editData.capacity}
-                            onChange={e => setEditData({ ...editData, capacity: e.target.value })}
-                            className="p-1 border border-sky-500 rounded text-xs focus:outline-none focus:ring-1"
-                            style={{ width: '80px' }}
-                          />
+                          <div className="space-y-2">
+                            <input
+                              type="number"
+                              value={editData.capacity}
+                              onChange={e => setEditData({ ...editData, capacity: e.target.value })}
+                              className="p-1 border border-sky-500 rounded text-xs focus:outline-none focus:ring-1"
+                              style={{ width: '80px' }}
+                            />
+                            <div className="grid grid-cols-2 gap-1 text-xs">
+                              {['Sunday','Monday','Tuesday','Wednesday','Thursday'].map(day => (
+                                <label key={day} className="inline-flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={editData.availableDays.includes(day)}
+                                    onChange={e => {
+                                      const next = e.target.checked
+                                        ? [...editData.availableDays, day]
+                                        : editData.availableDays.filter(d => d !== day);
+                                      setEditData({ ...editData, availableDays: next });
+                                    }}
+                                  />
+                                  {day.slice(0,3)}
+                                </label>
+                              ))}
+                            </div>
+                          </div>
                         ) : (
-                          <span className="font-medium text-gray-700">{room.capacity} seats</span>
+                          <div>
+                            <span className="font-medium text-gray-700">{room.capacity} seats</span>
+                            <div className="text-gray-500 text-xs">{(room.availableDays || []).join(', ')}</div>
+                          </div>
                         )}
                       </td>
                       <td className="py-3.5 px-4 text-right">
@@ -284,7 +328,7 @@ export default function RoomsTab() {
                             <button
                               onClick={() => {
                                 setIsEditing(room.roomNumber);
-                                setEditData({ capacity: room.capacity.toString(), type: room.type });
+                                setEditData({ capacity: room.capacity.toString(), type: room.type, availableDays: Array.isArray(room.availableDays) ? room.availableDays : ['Sunday','Monday','Tuesday','Wednesday','Thursday'] });
                               }}
                               className="p-1 text-[#2C4A6F] hover:bg-slate-100 rounded cursor-pointer"
                               title="Edit"

@@ -19,6 +19,11 @@ Room.init(
       type: DataTypes.ENUM('Classroom', 'Laboratory'),
       allowNull: false,
     },
+    availableDays: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
+    },
   },
   {
     sequelize,

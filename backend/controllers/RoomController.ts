@@ -17,7 +17,7 @@ export class RoomController {
 
   public static async create(req: Request, res: Response): Promise<void> {
     try {
-      const { roomNumber, capacity, type } = req.body;
+      const { roomNumber, capacity, type, availableDays } = req.body;
 
       if (!roomNumber || !capacity || !type) {
         res.status(400).json({ error: 'Room Number, Capacity, and Type are required.' });
@@ -45,7 +45,8 @@ export class RoomController {
       const room = await Room.create({
         roomNumber,
         capacity: capacityVal,
-        type
+        type,
+        availableDays: Array.isArray(availableDays) && availableDays.length > 0 ? availableDays : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'],
       });
 
       res.status(201).json(room);
@@ -62,7 +63,7 @@ if (!roomNumber) {
   res.status(400).json({ error: 'Invalid room number.' });
   return;
 }
-      const { capacity, type } = req.body;
+      const { capacity, type, availableDays } = req.body;
 
       if (!capacity || !type) {
         res.status(400).json({ error: 'Capacity and Type are required.' });
@@ -87,7 +88,7 @@ if (!roomNumber) {
       }
 
       
-      const updated = await room.update({ capacity: capacityVal, type });
+      const updated = await room.update({ capacity: capacityVal, type, availableDays: Array.isArray(availableDays) ? availableDays : room.getDataValue('availableDays') });
 
       res.status(200).json(updated);
     } catch (err: any) {
@@ -97,7 +98,7 @@ if (!roomNumber) {
 
   public static async delete(req: Request, res: Response): Promise<void> {
     try {
-      const roomNumber = Number(req.params.roomNumber);
+      const roomNumber = String(req.params.roomNumber);
 
       const room = await Room.findByPk(roomNumber);
       if (!room) {

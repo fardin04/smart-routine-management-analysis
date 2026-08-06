@@ -476,11 +476,12 @@ export class RoutineScheduler {
     }
 
     for (const r of rooms) {
-      this.roomBusy[r.getDataValue("roomNumber")] = {};
+      const roomNum = r.getDataValue("roomNumber");
+      const availableDays: string[] = r.getDataValue('availableDays') || ['Sunday','Monday','Tuesday','Wednesday','Thursday'];
+      this.roomBusy[roomNum] = {};
       for (const d of DAYS) {
-        this.roomBusy[r.getDataValue("roomNumber")][d] = new Array(9).fill(
-          false,
-        );
+        // If the room is not available on a given day, mark all slots busy (unavailable)
+        this.roomBusy[roomNum][d] = availableDays.includes(d) ? new Array(9).fill(false) : new Array(9).fill(true);
       }
     }
 

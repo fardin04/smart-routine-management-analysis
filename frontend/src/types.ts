@@ -9,6 +9,7 @@ export interface Room {
   roomNumber: string;
   capacity: number;
   type: 'Classroom' | 'Laboratory';
+  availableDays?: Array<'Sunday' | 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday'>;
   createdAt?: string;
   updatedAt?: string;
 }
