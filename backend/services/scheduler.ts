@@ -61,34 +61,7 @@ export class RoutineScheduler {
 
     // Initialize tracking tables
     this.initializeBusyTrackers(teachersList, roomsList, batchesList);
-    // Mark existing persisted routines as busy so generator doesn't conflict with them
-    const existingRoutines = await Routine.findAll({ include: [{ model: Course, as: 'course' }] });
-    for (const r of existingRoutines) {
-      const day = r.getDataValue('day');
-      const slot = r.getDataValue('slot');
-      const roomNumber = r.getDataValue('roomNumber');
-      const teacherId = r.getDataValue('teacherId');
-      const batchId = r.getDataValue('batchId');
-      const courseId = r.getDataValue('courseId');
-
-      if (roomNumber && this.roomBusy[roomNumber] && this.roomBusy[roomNumber][day]) {
-        this.roomBusy[roomNumber][day][slot] = true;
-      }
-      if (teacherId && this.teacherBusy[teacherId] && this.teacherBusy[teacherId][day]) {
-        this.teacherBusy[teacherId][day][slot] = true;
-      }
-      if (batchId && this.batchBusy[batchId] && this.batchBusy[batchId][day]) {
-        this.batchBusy[batchId][day][slot] = true;
-      }
-
-      // Track days scheduled for theory courses to preserve non-adjacent rule
-      const course = r.getDataValue('course');
-      if (course && course.getDataValue && course.getDataValue('courseType') === 'Theory') {
-        if (!this.scheduledDaysForCourse[courseId]) this.scheduledDaysForCourse[courseId] = {};
-        this.scheduledDaysForCourse[courseId][day] = true;
-      }
-    }
-
+       
     // 2. Prepare scheduling items
     // Theory needs 2 sessions (each 1 slot). Lab needs 1 session (requires 2 consecutive slots).
     const itemsToSchedule: ScheduleItem[] = [];
